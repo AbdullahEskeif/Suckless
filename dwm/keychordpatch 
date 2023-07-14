@@ -1,0 +1,113 @@
+ /* button definitions */
+diff --git a/dwm.c b/dwm.c
+index 5e4d494..56c4661 100644
+--- a/dwm.c
++++ b/dwm.c
+@@ -102,9 +102,14 @@ struct client {
+ typedef struct {
+ 	unsigned int mod;
+ 	keysym keysym;
++} key;
++
++typedef struct {
++	unsigned int n;
++	const key keys[5];
+ 	void (*func)(const arg *);
+ 	const arg arg;
+-} key;
++} keychord;
+ 
+ typedef struct {
+ 	const char *symbol;
+@@ -268,6 +273,7 @@ static display *dpy;
+ static drw *drw;
+ static monitor *mons, *selmon;
+ static window root, wmcheckwin;
++unsigned int currentkey = 0;
+ 
+ /* configuration, allows nested code to access above variables */
+ #include "config.h"
+@@ -951,16 +957,16 @@ grabkeys(void)
+ {
+ 	updatenumlockmask();
+ 	{
+-		unsigned int i, j;
++		unsigned int i, k;
+ 		unsigned int modifiers[] = { 0, lockmask, numlockmask, numlockmask|lockmask };
+ 		keycode code;
+ 
+ 		xungrabkey(dpy, anykey, anymodifier, root);
+-		for (i = 0; i < length(keys); i++)
+-			if ((code = xkeysymtokeycode(dpy, keys[i].keysym)))
+-				for (j = 0; j < length(modifiers); j++)
+-					xgrabkey(dpy, code, keys[i].mod | modifiers[j], root,
+-						true, grabmodeasync, grabmodeasync);
++		for (i = 0; i < length(keychords); i++)
++			if ((code = xkeysymtokeycode(dpy, keychords[i].keys[currentkey].keysym)))
++				for (k = 0; k < length(modifiers); k++)
++					xgrabkey(dpy, code, keychords[i].keys[currentkey].mod | modifiers[k], root,
++							 true, grabmodeasync, grabmodeasync);
+ 	}
+ }
+ 
+@@ -986,17 +992,48 @@ isuniquegeom(xineramascreeninfo *unique, size_t n, xineramascreeninfo *info)
+ void
+ keypress(xevent *e)
+ {
+-	unsigned int i;
++	xevent event = *e;
++	keychord *keychord;
++	unsigned int ran = 0;
+ 	keysym keysym;
+ 	xkeyevent *ev;
+-
+-	ev = &e->xkey;
+-	keysym = xkeycodetokeysym(dpy, (keycode)ev->keycode, 0);
+-	for (i = 0; i < length(keys); i++)
+-		if (keysym == keys[i].keysym
+-		&& cleanmask(keys[i].mod) == cleanmask(ev->state)
+-		&& keys[i].func)
+-			keys[i].func(&(keys[i].arg));
++	keychord *newoptions;
++	keychord *oldoptions = (keychord *)malloc(sizeof(keychords));
++
++	memcpy(oldoptions, keychords, sizeof(keychords));
++	size_t numoption = 0;
++	while(!ran){
++		ev = &event.xkey;
++		keysym = xkeycodetokeysym(dpy, (keycode)ev->keycode, 0);
++		newoptions = (keychord *)malloc(0);
++		numoption = 0;
++		for (keychord = oldoptions; keychord->n != 0 && currentkey < 5; keychord = (keychord *)((char *)keychord + sizeof(keychord))){
++			if(keysym == keychord->keys[currentkey].keysym
++			   && cleanmask(keychord->keys[currentkey].mod) == cleanmask(ev->state)
++			   && keychord->func){
++				if(keychord->n == currentkey +1){
++					keychord->func(&(keychord->arg));
++					ran = 1;
++				}else{
++					numoption++;
++					newoptions = (keychord *)realloc(newoptions, numoption * sizeof(keychord));
++					memcpy((char *)newoptions + (numoption -1) * sizeof(keychord),keychord, sizeof(keychord));
++				}
++			}
++		}
++		currentkey++;
++		if(numoption == 0)
++			break;
++		grabkeys();
++		while (running && !xnextevent(dpy, &event) && !ran)
++			if(event.type == keypress)
++				break;
++		free(oldoptions);
++		oldoptions = newoptions;
++	}
++	free(newoptions);
++	currentkey = 0;
++	grabkeys();
+ }
+ 
+ void
+-- 
+2.34.1
+

@@ -5,8 +5,8 @@
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-static char *font = "JetBrains Mono Nerd Font:style=Bold:size=12:antialias=true:autohint=true";
-static char *font2[] = {"NotoColorEmoji:pixelsize=10:antialias=true:autohint=true"};
+static char *font = "JetBrains Mono Nerd Font:size=12:antialias=true:autohint=true";
+static char *font2[] = {"JetBrains Mono Nerd Font:size=12:antialias=true:autohint=true","NotoColorEmoji:pixelsize=10:antialias=true:autohint=true"};
 static int borderpx = 3;
 
 /*
@@ -115,25 +115,25 @@ float alphaUnfocus;
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
 	/* 8 normal colors */
-   	"#3b4252", /* black   */
-	"#bf616a", /* red     */
-	"#a3be8c", /* green   */
-	"#ebcb8b", /* yellow  */
-	"#81a1c1", /* blue    */
-	"#b48ead", /* magenta */
-	"#88c0d0", /* cyan    */
-	"#e5e9f0", /* white   */
+   	"#414b50", /* black   */
+	"#e67e80", /* red     */
+	"#a7c080", /* green   */
+	"#dbbc7f", /* yellow  */
+	"#7fbbb3", /* blue    */
+	"#d699b6", /* magenta */
+	"#83c092", /* cyan    */
+	"#d3c6aa", /* white   */
 	/* 8 bright colors */
-	"#4c566a", /* black   */
-	"#bf616a", /* red     */
-	"#a3be8c", /* green   */
-	"#ebcb8b", /* yellow  */
-	"#81a1c1", /* blue    */
-	"#b48ead", /* magenta */
-	"#8fbcbb", /* cyan    */
-	"#eceff4", /* white   */
-[256] = "#d8dee9", /* default foreground colour */
-[257] = "#2e3440", /* default background colour */
+	"#475258", /* black   */
+	"#e67e80", /* red     */
+	"#a7c080", /* green   */
+	"#dbbc7f", /* yellow  */
+	"#7fbbb3", /* blue    */
+	"#d699b6", /* magenta */
+	"#83c092", /* cyan    */
+	"#d3c6aa", /* white   */
+[256] = "#d3c6aa", /* default foreground colour */
+[257] = "#272e33", /* default background colour */
 [258] = "#d3c6aa", /*575268*/
 
 };
